@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*
- * 'Enums' used by the parser and pretty printer.
+ * 'Enums' used throughout the project.
  *
  */
 
@@ -18,10 +18,10 @@ const NODETYPE  = {
 
 };
 
+
 /*
  *  The symbols for the logic operations.
  */
-
 const SYMBOL = {
 	OR  : " v ",
 	NOT : "~",
@@ -31,6 +31,7 @@ const SYMBOL = {
 	BIIMP : " <-> "
 };
 
+
 module.exports = {
 	NodeType : NODETYPE,
 	Symbol : SYMBOL
@@ -39,11 +40,12 @@ module.exports = {
 },{}],2:[function(require,module,exports){
 var NODETYPE = require('./Enums.js').NodeType;
 
+
 /*
  *	Parses the given sentence and returns the root node of the AST.
  *
  */
-function Parse(text){
+function Parse(text) {
 	if (text === String.empty)
 		throw "No input provided to parse";
 
@@ -64,12 +66,14 @@ function Parse(text){
 	var left = true;
 
 	while(!next.done) {
-		switch (next.value){
+		switch (next.value) {
 			case " ":
 				// If we hit a space, move on.
 				break;
 
 			case "(":
+				// TODO: this could be handled a bit better by moving the iterator up in the scope.
+
 				// When we hit a left parenthesis, get and parse the subexpression.
 				next = textIter.next();
 				
@@ -115,20 +119,22 @@ function Parse(text){
 				break;
 
 			case "-":
+
 				// prevCH is either the empty string or "<" at this point, so we add '-' to it's value;		
 				prevCh += next.value;
 				break;
 
 			case "<":
+
 				// prevCh should be empty here.
 				prevCh = next.value;
 				break;
 
 			case ">":
 
-				if(prevCh === "-"){
+				if(prevCh === "-") {
 					result.nodeType = NODETYPE.IMP;
-				} else if (prevCh === "<-"){
+				} else if (prevCh === "<-") {
 					result.nodeType = NODETYPE.BIIMP;
 				} else {
 					throw "Invalid synmbol :" + prevCH;
@@ -159,13 +165,15 @@ function Parse(text){
 	return OptimizeRoot(result);
 }
 
+
 /*
  *  Returns the first child node of the root which has a NodeType set.
  */
-function OptimizeRoot(root){
-	while (root.nodeType === '') 
-		root = root.children[0];
+function OptimizeRoot(root) {
 
+	while (root.nodeType === '') {
+		root = root.children[0];
+	}
 
 	return root;
 }
@@ -174,11 +182,21 @@ function OptimizeRoot(root){
 
 module.exports = Parse
 
+/*
 
+	TODO: We are not handling anyerrors here.
+			- Mismatched '(' ')'
+			- using v as a parameter
+			- too many '-' for (BI)IMP
+			- etc
+
+*/
 
 
 ///// TESTING
 /*
+	TODO : Actually do some unit tests?
+
 	var result = Parse("((p v q) & t)");
 	console.log(result.children.length);
 	var json = JSON.stringify(result);
@@ -210,31 +228,9 @@ addTest("~(a # b)")
 addTest("~a");
 addTest("~(a v b)");
 
-for(var i = 1; i <= tests.length; i++){
+for(var i = 1; i <= tests.length; i++) {
 	P(i, tests[i - 1]);
 }
-*/
-
-/*  The Idea:
-
-	When selecting a node in the tree, we will go through and create an AST for each
-	statement present in the node.
-
-	We then go through and check the top level node, and see if the operation we selected
-	corresponds to the correct nodeType.
-
-	If this is the case we grab the left child and right child of the node, and
-	shove them through a pretty printer to get the associated text.
-
-	We then append to the bottom of the subtree whose root is the selected node,
-	the new node(s).
-
-	After this is successfully done, something needs to indicate (both visually and
-	in the data) that the statement has been used.
-	
-
-	Rolling back is very much a 2.0 type of problem.  
-
 */
 },{"./Enums.js":1}],3:[function(require,module,exports){
 var Enums = require("./Enums.js");
@@ -246,7 +242,7 @@ var NodeType = Enums.NodeType;
 /*
  *	Takes an ast and writes it as a string.
  */
-function PrettyPrinter(ast){
+function PrettyPrinter(ast) {
 	var result = writeString(ast);
 
 	// remove the outer parenthesis.
@@ -259,13 +255,13 @@ function PrettyPrinter(ast){
 /*
  *	Produces a propositional formula from an AST.
  */
-function writeString(ast){
+function writeString(ast) {
 	var result = "",
 		nodeType = ast.nodeType;
 		
 		
 
-	if (nodeType === NodeType.ATOM){
+	if (nodeType === NodeType.ATOM) {
 		result += ast.label;
 	} else {
 		var logicSymbol = getSymbol(nodeType),
@@ -279,11 +275,12 @@ function writeString(ast){
 }
 
 /*
- *
+ *  Gets the symbol associated to the given node type.
  */
-function getSymbol(nodeType){
+function getSymbol(nodeType) {
 	return eval("SYMBOL." + nodeType);
 }
+
 
 module.exports = PrettyPrinter;
 
@@ -328,7 +325,7 @@ module.exports = PrettyPrinter;
 
     this.clickNode = [];
     
-    this.clickNode.push( (d) => {
+    this.clickNode.push((d) => {
 
       // Onclick event for the nodes in the tree.
       // TODO : Was planning on hooking a bunch of events up to this, but I don't think we need this anymore, so it can be refactored away.
@@ -789,10 +786,20 @@ var Parser = require("./js/Parser.js"),
     Write = require("./js/PrettyPrinter.js"),
     NodeType = require("./js/Enums.js").NodeType,
     Symbol = require("./js/Enums.js").Symbol,
-    TruthTree = require("./js/Tree.js");
+    TruthTree = require("./js/TruthTree.js");
 
+// TODO (IMPORTANT) : Need to write a markdown file for the github page.
 
-var tree = new TruthTree({top:20, left:200, right: 0, bottom: 20}, {props : ["p -> q", "~(p -> q)"]});
+// TODO: Need to allow for inputting the props to start.
+
+  // - Easy -> Wrap main.js up in a big file and export it. browserify can expose the module to index.html so people can put their own list in here.
+  // - Medium -> Divs + JQUERY + some way of specifying lists (comma's arn't used by the prop calculus, so that should be fine.)
+
+var startingNode = {
+  props : ["p -> q", "~(p -> q)"]
+}
+
+var tree = new TruthTree({top:20, left:200, right: 0, bottom: 20}, startingNode);
 
 function generateRule(clickedControl){
 
@@ -829,6 +836,7 @@ function generateRule(clickedControl){
 } 
 
 
+//TODO : LET US CLOSE BRANCHES!! 
 
 $(".control").on("click",function(e) {
   var control = $(e.currentTarget).closest("li"),
@@ -837,4 +845,30 @@ $(".control").on("click",function(e) {
   tree.applyRule(rule);
 
 });
-},{"./js/Enums.js":1,"./js/Parser.js":2,"./js/PrettyPrinter.js":3,"./js/Tree.js":4}]},{},[5]);
+
+/*
+
+  TODO : Visual stuff
+
+  We select text, but there is no indicator that it is selected right now.
+    - Easy change -> throw a div in somewhere and populate it with the selctedText when it is clicked.
+    - Hard change -> Come up with a reasonable visual that indicates the text has been selected. (coloring it looked like shit, and wasn't noticable. Maybe make the font bigger?
+                     but then we would have to resize the rect element... TODO : see if we can also get the height of text when we get the width.)
+
+  TODO : Strike through when the correct rule is applied. (css style on success)
+
+  TODO : Need to build something that keeps track of the attempts to apply the wrong rules.
+      - Easy change -> some divs (of course) for counters 
+      - hard change? -> actually use a database.
+            - See if back.io is up and running again. Free! 
+                  - would need a data model for keep scores { Name, propList, FakeNews }
+
+
+
+  Ambitious TODO : Write something completes the treef for you. (shouldn't be too hard if we seperate some functionality from TruthTree).
+
+  Project TODO : Right now we have to run browserify on main.js to create app.js. We will eventually want to run a minimizer before (or after) browserify to reduce the size of app.js so it is a self contained project.
+                  We might even be able to just put it all in a single html file which can be served. (index.html + app.js).
+
+*/
+},{"./js/Enums.js":1,"./js/Parser.js":2,"./js/PrettyPrinter.js":3,"./js/TruthTree.js":4}]},{},[5]);

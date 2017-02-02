@@ -2,16 +2,20 @@ var Parser = require("./js/Parser.js"),
     Write = require("./js/PrettyPrinter.js"),
     NodeType = require("./js/Enums.js").NodeType,
     Symbol = require("./js/Enums.js").Symbol,
-    TruthTree = require("./js/Tree.js");
+    TruthTree = require("./js/TruthTree.js");
 
 // TODO (IMPORTANT) : Need to write a markdown file for the github page.
 
-// TODO: Need to allow for inputting the props to start.
+// TODO (IMPORTANT): Need to allow for inputting the props to start.
 
   // - Easy -> Wrap main.js up in a big file and export it. browserify can expose the module to index.html so people can put their own list in here.
-  // - Medium -> Divs + JQUERY + some way of specifying lists (comma's arn't used by the prop calculus, so that should be fine.)
+  // - Medium -> Divs + JQUERY + some way of specifying lists (comma's aren't used by the prop calculus, so that should be fine.)
 
-var tree = new TruthTree({top:20, left:200, right: 0, bottom: 20}, {props : ["p -> q", "~(p -> q)"]});
+var startingNode = {
+  props : ["p -> q", "~(p -> q)"]
+}
+
+var tree = new TruthTree({top:20, left:200, right: 0, bottom: 20}, startingNode);
 
 function generateRule(clickedControl){
 
