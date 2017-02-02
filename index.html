@@ -23,61 +23,90 @@
 
     <style>
 
-      /* We will want to move the styles into a css file soon. */
+/* We will want to move the styles into a css file soon. */
 
- .node rect, .node circle {
-   fill: #fff;
-   stroke: steelblue;
-   stroke-width: 3px;
- }
+      .node rect {
+          fill: #fff;
+          stroke: steelblue;
+          stroke-width: 3px;
+       }
 
- .node text { font: 12px sans-serif; }
+      .node text {
+          font: 12px sans-serif;
+      }
 
- .link {
-   fill: none;
-   stroke: #ccc;
-   stroke-width: 2px;
- }
+      .link {
+          fill: none;
+          stroke: #ccc;
+          stroke-width: 2px;
+      }
 
- #treeContainer{
-  float:left;
-  outline: 1px solid black;
-  width:75%;
- }
+      #treeContainer {
+          float:left;
+          outline: 1px solid black;
+          width:75%;
+      }
 
- .controls {
-  margin:0;
-  margin-left:10px;
+      .controls {
+          margin:0;
+          margin-left:10px;
 
-  width : 20%;
-  float:left;
-  outline:1px solid blue;
-  list-style: none;
-  padding:0;
- }
+          width : 20%;
+          float:left;
+          outline:1px solid blue;
+          list-style: none;
+          padding:0;
+      }
 
- .controls > li{
-  border:1px solid green;
-  border-radius: :5px;
- }
+      .controls > li {
+          border:1px solid green;
+          border-radius: :5px;
+      }
 
- .control:hover{
-    background-color:blue;
-    color:yellow;
- }
+      .control:hover {
+          background-color:blue;
+          color:yellow;
+      }
 
- .controls.nonBranching, .controls.misc{
-  margin-top:20px;
- }
+      .controls.nonBranching, .controls.misc {
+          margin-top:20px;
+      }
 
- .control p {
-  text-align: center;
- }
+      .control p {
+          text-align: center;
+      }
 
+      .node text {
+          cursor : pointer;
+      }
 
- .node text{
-  cursor : pointer;
- }
+      .initer {
+          margin-bottom:10px;
+      }
+
+      .initer > * {
+          float:left;
+          margin-left: 20px;
+          text-align: center;
+      }
+
+      .initer:after {
+          content: '';
+          display: block;
+          clear: both;
+      }
+
+      .treeStart {
+          width: 20%;
+          border-radius:10px;
+      }
+
+      .propList {
+          margin-top:15px;
+          text-align:left;
+          width:70%;
+          height:1.2em;
+      }
 
   </style>
 
@@ -86,6 +115,10 @@
 </head>
   <body>
     <div class="appContainer">
+      <div class="initer">
+        <textarea class="propList"></textarea>
+        <div class="treeStart control"> <p> Start Tree </p> </div>
+      </div>
       <div class="mainView">
         <div id="treeContainer"> </div>
 
@@ -130,9 +163,7 @@
           <ul class="controls misc">
             <li class="control closeBranch"> <p> Close / Open Branch <p> </li>
           </ul>
-      </div>
-      <div class="branchControl"> 
-          
+
       </div>
     </div>
 
