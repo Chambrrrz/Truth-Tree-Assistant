@@ -6,13 +6,6 @@ var Parser = require("./js/Parser.js"),
 
 // TODO (IMPORTANT) : Need to write a markdown file for the github page.
 
-// TODO (IMPORTANT): Need to allow for inputting the props to start.
-
-  // - Easy -> Wrap main.js up in a big file and export it. browserify can expose the module to index.html so people can put their own list in here.
-  // - Medium -> Divs + JQUERY + some way of specifying lists (comma's aren't used by the prop calculus, so that should be fine.)
-
-
-
 
 // sets some margins for the tree setup to consider. Not too sure we need this.
 var treeSetup = {
