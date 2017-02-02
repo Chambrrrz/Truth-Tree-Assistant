@@ -1,10 +1,11 @@
 var NODETYPE = require('./Enums.js').NodeType;
 
+
 /*
  *	Parses the given sentence and returns the root node of the AST.
  *
  */
-function Parse(text){
+function Parse(text) {
 	if (text === String.empty)
 		throw "No input provided to parse";
 
@@ -25,12 +26,14 @@ function Parse(text){
 	var left = true;
 
 	while(!next.done) {
-		switch (next.value){
+		switch (next.value) {
 			case " ":
 				// If we hit a space, move on.
 				break;
 
 			case "(":
+				// TODO: this could be handled a bit better by moving the iterator up in the scope.
+
 				// When we hit a left parenthesis, get and parse the subexpression.
 				next = textIter.next();
 				
@@ -76,20 +79,22 @@ function Parse(text){
 				break;
 
 			case "-":
+
 				// prevCH is either the empty string or "<" at this point, so we add '-' to it's value;		
 				prevCh += next.value;
 				break;
 
 			case "<":
+
 				// prevCh should be empty here.
 				prevCh = next.value;
 				break;
 
 			case ">":
 
-				if(prevCh === "-"){
+				if(prevCh === "-") {
 					result.nodeType = NODETYPE.IMP;
-				} else if (prevCh === "<-"){
+				} else if (prevCh === "<-") {
 					result.nodeType = NODETYPE.BIIMP;
 				} else {
 					throw "Invalid synmbol :" + prevCH;
@@ -120,13 +125,15 @@ function Parse(text){
 	return OptimizeRoot(result);
 }
 
+
 /*
  *  Returns the first child node of the root which has a NodeType set.
  */
-function OptimizeRoot(root){
-	while (root.nodeType === '') 
-		root = root.children[0];
+function OptimizeRoot(root) {
 
+	while (root.nodeType === '') {
+		root = root.children[0];
+	}
 
 	return root;
 }
@@ -135,11 +142,21 @@ function OptimizeRoot(root){
 
 module.exports = Parse
 
+/*
 
+	TODO: We are not handling anyerrors here.
+			- Mismatched '(' ')'
+			- using v as a parameter
+			- too many '-' for (BI)IMP
+			- etc
+
+*/
 
 
 ///// TESTING
 /*
+	TODO : Actually do some unit tests?
+
 	var result = Parse("((p v q) & t)");
 	console.log(result.children.length);
 	var json = JSON.stringify(result);
@@ -171,29 +188,7 @@ addTest("~(a # b)")
 addTest("~a");
 addTest("~(a v b)");
 
-for(var i = 1; i <= tests.length; i++){
+for(var i = 1; i <= tests.length; i++) {
 	P(i, tests[i - 1]);
 }
-*/
-
-/*  The Idea:
-
-	When selecting a node in the tree, we will go through and create an AST for each
-	statement present in the node.
-
-	We then go through and check the top level node, and see if the operation we selected
-	corresponds to the correct nodeType.
-
-	If this is the case we grab the left child and right child of the node, and
-	shove them through a pretty printer to get the associated text.
-
-	We then append to the bottom of the subtree whose root is the selected node,
-	the new node(s).
-
-	After this is successfully done, something needs to indicate (both visually and
-	in the data) that the statement has been used.
-	
-
-	Rolling back is very much a 2.0 type of problem.  
-
 */

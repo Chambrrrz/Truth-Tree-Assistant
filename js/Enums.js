@@ -1,5 +1,5 @@
 /*
- * 'Enums' used by the parser and pretty printer.
+ * 'Enums' used throughout the project.
  *
  */
 
@@ -17,10 +17,10 @@ const NODETYPE  = {
 
 };
 
+
 /*
  *  The symbols for the logic operations.
  */
-
 const SYMBOL = {
 	OR  : " v ",
 	NOT : "~",
@@ -29,6 +29,7 @@ const SYMBOL = {
 	IMP : " -> ",
 	BIIMP : " <-> "
 };
+
 
 module.exports = {
 	NodeType : NODETYPE,

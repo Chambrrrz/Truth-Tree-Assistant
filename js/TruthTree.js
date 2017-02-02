@@ -36,7 +36,7 @@
 
     this.clickNode = [];
     
-    this.clickNode.push( (d) => {
+    this.clickNode.push((d) => {
 
       // Onclick event for the nodes in the tree.
       // TODO : Was planning on hooking a bunch of events up to this, but I don't think we need this anymore, so it can be refactored away.

@@ -7,7 +7,7 @@ var NodeType = Enums.NodeType;
 /*
  *	Takes an ast and writes it as a string.
  */
-function PrettyPrinter(ast){
+function PrettyPrinter(ast) {
 	var result = writeString(ast);
 
 	// remove the outer parenthesis.
@@ -20,13 +20,13 @@ function PrettyPrinter(ast){
 /*
  *	Produces a propositional formula from an AST.
  */
-function writeString(ast){
+function writeString(ast) {
 	var result = "",
 		nodeType = ast.nodeType;
 		
 		
 
-	if (nodeType === NodeType.ATOM){
+	if (nodeType === NodeType.ATOM) {
 		result += ast.label;
 	} else {
 		var logicSymbol = getSymbol(nodeType),
@@ -40,11 +40,12 @@ function writeString(ast){
 }
 
 /*
- *
+ *  Gets the symbol associated to the given node type.
  */
-function getSymbol(nodeType){
+function getSymbol(nodeType) {
 	return eval("SYMBOL." + nodeType);
 }
+
 
 module.exports = PrettyPrinter;
 
