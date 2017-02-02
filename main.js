@@ -11,13 +11,45 @@ var Parser = require("./js/Parser.js"),
   // - Easy -> Wrap main.js up in a big file and export it. browserify can expose the module to index.html so people can put their own list in here.
   // - Medium -> Divs + JQUERY + some way of specifying lists (comma's aren't used by the prop calculus, so that should be fine.)
 
-var startingNode = {
-  props : ["p -> q", "~(p -> q)"]
+
+
+
+// sets some margins for the tree setup to consider. Not too sure we need this.
+var treeSetup = {
+      top : 20,
+      left : 200,
+      right: 0,
+      bottom: 0
+};
+
+// the truth tree we are going to setup.
+var tree = null;
+
+function handleTruthTreeCreation() {
+
+    if (tree) throw "We have already started a truth tree."
+    
+    var rootNode = { 
+
+      props : $(".propList").text().split(",")
+
+    }
+
+    tree = new TruthTree(treeSetup, rootNode);
+
 }
 
-var tree = new TruthTree({top:20, left:200, right: 0, bottom: 20}, startingNode);
+function handleRuleApplication(currentTarget) {
 
-function generateRule(clickedControl){
+      var control = $(currentTarget).closest("li"),
+      rule = generateRule(control);
+
+      tree.applyRule(rule);
+}
+
+
+
+function generateRule(clickedControl) {
 
     var newRule = {ruleType : "", not: false }
 
@@ -55,10 +87,13 @@ function generateRule(clickedControl){
 //TODO : LET US CLOSE BRANCHES!! 
 
 $(".control").on("click",function(e) {
-  var control = $(e.currentTarget).closest("li"),
-      rule = generateRule(control);
 
-  tree.applyRule(rule);
+  // if we clicked the "Start Tree" button.
+  if ($(e.currentTarget).closest(".treeStart").length > 0) {
+    handleTruthTreeCreation();
+  } else {
+    handleRuleApplication(e.currentTarget);          
+  }
 
 });
 
