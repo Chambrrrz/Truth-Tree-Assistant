@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"> </script>
+    <meta charset="utf-8">
+
+    <title>Collapsible Tree Example</title>
+
+    <style>
+
+ .node rect, .node circle {
+   fill: #fff;
+   stroke: steelblue;
+   stroke-width: 3px;
+ }
+
+ .node text { font: 12px sans-serif; }
+
+ .link {
+   fill: none;
+   stroke: #ccc;
+   stroke-width: 2px;
+ }
+
+ #treeContainer{
+  float:left;
+  outline: 1px solid black;
+  width:75%;
+ }
+
+ .controls {
+  margin:0;
+  margin-left:10px;
+
+  width : 20%;
+  float:left;
+  outline:1px solid blue;
+  list-style: none;
+  padding:0;
+ }
+
+ .controls > li{
+  border:1px solid green;
+  border-radius: :5px;
+ }
+
+ .control:hover{
+    background-color:blue;
+    color:yellow;
+ }
+
+ .controls.nonBranching, .controls.misc{
+  margin-top:20px;
+ }
+
+ .control p {
+  text-align: center;
+ }
+
+
+ .node text{
+  cursor : pointer;
+ }
+
+  </style>
+
+  <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax : { inlineMath : [['$', '$'],] }
+    });
+  </script>
+
+</head>
+  <body>
+    <div class="appContainer">
+      <div class="mainView">
+        <div id="treeContainer"> </div>
+
+          <!-- Controls for Branching (beta) rules. -->
+          <ul class="controls branching">
+            <li class="control or">
+               <p> $ (p \vee q) $ </p>
+            </li>
+            <li class="control notAnd"> 
+              <p> $ \neg (p \wedge q) $ </p>
+            </li>
+            <li class="control imp"> 
+              <p> $ p \rightarrow q$ </p>
+            </li>
+            <li class="control biimp"> 
+              <p> $ p \leftrightarrow q $ </p>
+            </li>
+            <li class="control notBiimp"> 
+              <p> $ \neg (p \leftrightarrow q)$ </p>
+            </li>
+          </ul>
+          
+
+          <!-- Controls for Non Branching (alpha) rules. -->
+          <ul class="controls nonBranching">
+            <li class="control doubleNegation"> 
+              <p> $ \neg\neg p $</p> 
+            </li>
+            <li class="control and">
+              <p> $ p \wedge q $</p>
+            </li>
+            <li class="control notImp">
+              <p> $ \neg(p \rightarrow q) $ </p>
+            </li>
+            <li class="control notOr">
+              <p> $ \neg (p \vee q) $ </p>
+            </li>
+          </ul>
+
+
+          <!--  Misc Controls not associated to branching -->
+          <ul class="controls misc">
+            <li class="control closeBranch"> <p> Close / Open Branch <p> </li>
+          </ul>
+      </div>
+      <div class="branchControl"> 
+          
+      </div>
+    </div>
+
+    <!-- load the d3.js library --> 
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="app.js"> </script>
+
+    <script>
+
+    </script>
+
+    </body>
+</html>

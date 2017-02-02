@@ -1,0 +1,7 @@
+{
+	"name" : "truth_tree_assistant",
+	"version" : "0.0.1",
+	"description" : "Helper for constructing truth trees",
+	"main" : "main.js",
+	"author" : "Kris Chambers"
+}
