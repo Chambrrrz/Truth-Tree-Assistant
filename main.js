@@ -4,6 +4,8 @@ var Parser = require("./js/Parser.js"),
     Symbol = require("./js/Enums.js").Symbol,
     TruthTree = require("./js/Tree.js");
 
+// TODO (IMPORTANT) : Need to write a markdown file for the github page.
+
 // TODO: Need to allow for inputting the props to start.
 
   // - Easy -> Wrap main.js up in a big file and export it. browserify can expose the module to index.html so people can put their own list in here.
