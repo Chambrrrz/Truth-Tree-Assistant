@@ -14,8 +14,8 @@
 
 
     //TODO: Need to center the root in the svg element.
-    var width = "100%"//
-    
+    var width = "100%", height = 300;//
+
     this.nodeCount = 0;
     this.clickedNode = null;
     this.selectedtext = "";
@@ -32,7 +32,7 @@
     this.root.x0 = height / 2;
     this.root.y0 = 0;
 
-    this._update(this.root);
+    this._update();
   }
 
 
@@ -70,6 +70,7 @@ TruthTree.prototype.getLeaves = function() {
 /*
  *  Apples the provided branching rule to the tree.
  */
+ /*
 TruthTree.prototype.applyRule = function(rule) {
   
   var apply = (doRule) => {
@@ -270,7 +271,7 @@ TruthTree.prototype.applyRule = function(rule) {
     //update the view.
     this._update(this.root);
 }
-
+*/
 
 /*
  *  Returns an object containing the nodes and links for the tree.
@@ -286,9 +287,12 @@ TruthTree.prototype.getLayout = function() {
 
 
 /*
- *  Updates the tree diagram.
+ *  Updates the subtree 'source' node. If 'source' is empty, updates 'root'.
  */
 TruthTree.prototype._update = function(source) {
+  
+  // if no source is provided update the root.
+  source = source ? source : this.root;
 
 // Right now the x and y are swapped when doing some of the calculations since this was adapted from d3 tress that grow horizontally.
 // There is probably a way to configure the layout for the tree diagram.
@@ -482,9 +486,6 @@ TruthTree.prototype._getRectWidth = function(textArray) {
     return w;
   }
 
-  TruthTree.prototype.delete = function() {
-    d3.selectAll('g').remove();
-}
 
 
 module.exports = TruthTree
