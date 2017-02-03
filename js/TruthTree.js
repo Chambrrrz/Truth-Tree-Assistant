@@ -14,9 +14,8 @@
 
 
     //TODO: Need to center the root in the svg element.
-    var width = "100%",
-        height = 600 - margin.top - margin.bottom;
-
+    var width = "100%"//
+    
     this.nodeCount = 0;
     this.clickedNode = null;
     this.selectedtext = "";
@@ -25,34 +24,13 @@
 
     //Can probably remove some of these parameters we are setting.    
     this.svg = d3.select('#treeContainer').append('svg')
-      .attr("width", width + margin.right + margin.left)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("width", width)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     this.root = treeData;
     this.root.x0 = height / 2;
     this.root.y0 = 0;
-
-    this.clickNode = [];
-    
-    this.clickNode.push((d) => {
-
-      // Onclick event for the nodes in the tree.
-      // TODO : Was planning on hooking a bunch of events up to this, but I don't think we need this anymore, so it can be refactored away.
-        if (d.clicked) {
-          d.clicked = false;
-        } else {
-          d.clicked = true;
-          
-          if(this.clickedNode)
-            this.clickedNode.clicked = false;
-        }
-
-        this.clickedNode = this.clickedNode === d ? null : d;
-
-        this._update(d);
-    })
 
     this._update(this.root);
   }
@@ -65,9 +43,10 @@ TruthTree.prototype.constructor = TruthTree;
 
 
 /*
- *  Adds a new child node to the provided parent node.
+ *  Adds a new child node to the provided parent node, or the selectedNode if no parentNode is provided.
  */
 TruthTree.prototype.addChild = function(newNode, parentNode) {
+
   var p = parentNode || this.clickedNode;  // the node we clicked on.
   
   if(p.children) {
@@ -82,6 +61,7 @@ TruthTree.prototype.addChild = function(newNode, parentNode) {
  *  Returns all leaf nodes of the TruthTree.
  */
 TruthTree.prototype.getLeaves = function() {
+
   var layout = this.getLayout();
   return layout.nodes.filter((n) => { return !n.children || n.children.length === 0; });
 }
@@ -92,7 +72,7 @@ TruthTree.prototype.getLeaves = function() {
  */
 TruthTree.prototype.applyRule = function(rule) {
   
-    var apply = (doRule) => {
+  var apply = (doRule) => {
           
           //TODO: Don't think we need to parse selectedText as much as we are.
           var leaves = this.getLeaves(),
@@ -108,6 +88,7 @@ TruthTree.prototype.applyRule = function(rule) {
       
       // p -> q  ==> (~p, q)      |     ~(p -> q) ==>  p, ~q
       IMP = (n, ast) => {
+
             var p = Write(ast.children[0]),
                 q = Write(ast.children[1]);
             
@@ -132,6 +113,7 @@ TruthTree.prototype.applyRule = function(rule) {
       
       // p <-> q ==> ([p,q],[~p, ~q])    |  ~(p <-> q) ==> ([p, ~q], [~p, q])
       BIIMP = (n, ast) => {
+
               var p = Write(ast.children[0]),
                   q = Write(ast.children[1]);
 
@@ -159,6 +141,7 @@ TruthTree.prototype.applyRule = function(rule) {
 
       // p & q ==> p, q   |   ~(p & q) ==> (~p, ~q)
       AND = (n, ast) => {
+
             var p = Write(ast.children[0]),
                 q = Write(ast.children[1]);
 
@@ -183,6 +166,7 @@ TruthTree.prototype.applyRule = function(rule) {
 
       // ~BIIMP
       XOR = (n, ast) => { 
+
             not = true;
             BIIMP(n, ast);
       },
@@ -190,6 +174,7 @@ TruthTree.prototype.applyRule = function(rule) {
       // if we hit this, we have a double negation.
       // ~~p ==> p
       NOT = (n, ast) => {
+
             var p = Write(ast.children[0]);
 
             this.addChild({
@@ -199,6 +184,7 @@ TruthTree.prototype.applyRule = function(rule) {
 
       // p v q ==> (p,q)  |  ~(p v q) ==> ~p, ~q  
       OR = (n, ast) => {
+
             var p = Write(ast.children[0]),
                 q = Write(ast.children[1]);
 
@@ -223,6 +209,7 @@ TruthTree.prototype.applyRule = function(rule) {
       
       // Closes a branch of the tree.
       CLOSE = (n, ast) => {
+
         if (n.clicked) {
           if (n.closed) {
             n.closed = false;
@@ -345,12 +332,21 @@ TruthTree.prototype._update = function(source) {
   .attr("class", "node")
   .attr("transform", function(d) { 
     return "translate(" + source.x0 + "," + (source.y0 + 20) + ")"; })
-  .on("click", (d, i, g) => {
-    if (this.clickNode.length > 0)
-      for (var i = 0; i < this.clickNode.length; i++) {
-        this.clickNode[i](d);
-      }
-  })
+  .on("click", (d) => {
+
+        if (d.clicked) {
+          d.clicked = false;
+        } else {
+          d.clicked = true;
+          
+          if(this.clickedNode)
+            this.clickedNode.clicked = false;
+        }
+
+        this.clickedNode = this.clickedNode === d ? null : d;
+
+        this._update(d);
+    })
 
   // padding for text inside a rect.
   var padding = 20;
