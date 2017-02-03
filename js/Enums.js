@@ -14,7 +14,6 @@ const NODETYPE  = {
 	XOR				: "XOR",
 	NOT				: "NOT",
  	OR				: "OR"
-
 };
 
 
@@ -31,7 +30,15 @@ const SYMBOL = {
 };
 
 
+/*
+ * The Types of operations that can be applied to a TruthTree.
+ */
+const OPERATION = NODETYPE;
+OPERATION.CLOSE = "CLOSE";
+
+
 module.exports = {
 	NodeType : NODETYPE,
-	Symbol : SYMBOL
+	Symbol	: SYMBOL,
+	Operation : OPERATION
 }
