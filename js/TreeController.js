@@ -7,9 +7,10 @@ var TruthTree = require("./TruthTree.js"),
 /*
  *  Constructor for a TreeController.
  */
-function TreeController() {
+function TreeController(log) {
 
-	this.truthTree = null
+	this.log = log;
+	this.truthTree = null;
 }
 TreeController.prototype.constructor = TreeController;
 
@@ -34,42 +35,48 @@ TreeController.prototype.apply = function(operation, isNot) {
 		leave = this.truthTree.getLeaves(),
 		op = null;
 
+	// if the operation doesn't match the node type, inform the user they are applying an incorrect operation.
+	if (operation !== Operation.CLOSE && operation !== ast.nodeType) {
 
-	switch (operation){
-		case Operation.ATOM:
-			op = this._atomOp;
-			break;
+		this.log("Incorrect (non-)branching rule.");
+	} else {
 
-		case Operation.IMP:
-			op = this._implicationOP;
-			break;
+		switch (operation){
+			case Operation.ATOM:
+				op = this._atomOp;
+				break;
 
-		case Operation.BIIMP:
-			op = this._biImplicationOP;
-			break;
+			case Operation.IMP:
+				op = this._implicationOP;
+				break;
 
-		case Operation.AND:
-			op = this._andOP;
-			break;
+			case Operation.BIIMP:
+				op = this._biImplicationOP;
+				break;
 
-		case Operation.XOR:
-			op = this._xOrOP;
-			break;
+			case Operation.AND:
+				op = this._andOP;
+				break;
 
-		case Operation.NOT:
-			op = this._notOP;
-			break;
+			case Operation.XOR:
+				op = this._xOrOP;
+				break;
 
-		case Operation.OR:
-			op = this._orOP;
-			break;
+			case Operation.NOT:
+				op = this._notOP;
+				break;
 
-		case Operation.CLOSE:
-			op = this._closeBranchOP;
-			break;
+			case Operation.OR:
+				op = this._orOP;
+				break;
 
-		default:
-			throw "Unrecognized operation.";
+			case Operation.CLOSE:
+				op = this._closeBranchOP;
+				break;
+
+			default:
+				throw "Unrecognized operation.";
+		}
 	}
 
 	/*  NOTE: 	

@@ -4,10 +4,26 @@ var //Parser = require("./js/Parser.js"),
     TruthTreeController = require("./js/TreeController.js"),
     TruthTree = require("./js/TruthTree.js");
 
+var originalLog = window.console.log;
+var debug = true;
 
+window.console = {
+    log : function (text){
+        
+        // we are setting a debug flag. So when we are in debug mode, we duplicate the console.log output in the #log div. When debug is false, console.log behaves as normal.
+        // this is mainly so we can debug everything without having another global log.
+        if (debug)
+            log(text);
+        
+        originalLog(text);
+    }
+}
+
+function log(text){
+    $("#log > p").text(text);
+}
 
 var controller = new TruthTreeController();
-
 
 
 // the truth tree we are going to setup.

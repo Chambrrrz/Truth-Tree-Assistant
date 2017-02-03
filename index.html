@@ -90,6 +90,17 @@
           text-align: center;
       }
 
+      .initer > .textContainer {
+          width: 70%;
+      }
+
+      .textContainer > #log {
+          width: 100%;
+          height: 1em;
+          text-align: left;
+          color: red;
+      }
+
       .initer:after {
           content: '';
           display: block;
@@ -104,7 +115,7 @@
       .propList {
           margin-top: 15px;
           text-align: left;
-          width: 70%;
+          width: 100%;
           height: 1.2em;
       }
 
@@ -116,7 +127,10 @@
   <body>
     <div class="appContainer">
       <div class="initer">
-        <textarea class="propList"></textarea>
+        <div class="textContainer">
+          <textarea class="propList"></textarea>
+          <div id="log"> <p> </p> </div>
+        </div>
         <div class="treeStart control"> <p> Start Tree </p> </div>
       </div>
       <div class="mainView">
@@ -127,7 +141,7 @@
             <li class="control or">
                <p> $ (p \vee q) $ </p>
             </li>
-            <li class="control not And"> 
+            <li class="control not and"> 
               <p> $ \neg (p \wedge q) $ </p>
             </li>
             <li class="control imp"> 
@@ -144,16 +158,16 @@
 
           <!-- Controls for Non Branching (alpha) rules. -->
           <ul class="controls nonBranching">
-            <li class="control not Negation"> 
+            <li class="control not negation"> 
               <p> $ \neg\neg p $</p> 
             </li>
             <li class="control and">
               <p> $ p \wedge q $</p>
             </li>
-            <li class="control not Imp">
+            <li class="control not imp">
               <p> $ \neg(p \rightarrow q) $ </p>
             </li>
-            <li class="control not Or">
+            <li class="control not or">
               <p> $ \neg (p \vee q) $ </p>
             </li>
           </ul>
