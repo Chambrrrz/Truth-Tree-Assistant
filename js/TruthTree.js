@@ -13,7 +13,7 @@
     // treeData null, set default? or throw error?
 
 
-    //TODO: Need to center the root int he svg element.
+    //TODO: Need to center the root in the svg element.
     var width = "100%",
         height = 600 - margin.top - margin.bottom;
 
@@ -59,7 +59,7 @@
 
 
 /*
- * Constructor for a new tree.
+ * Constructor for a new TruthTree.
  */
 TruthTree.prototype.constructor = TruthTree;
 
@@ -79,7 +79,7 @@ TruthTree.prototype.addChild = function(newNode, parentNode) {
 
 
 /*
- *  Returns all leaf nodes of the truth tree.
+ *  Returns all leaf nodes of the TruthTree.
  */
 TruthTree.prototype.getLeaves = function() {
   var layout = this.getLayout();
