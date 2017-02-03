@@ -4,9 +4,6 @@ var Parser = require("./js/Parser.js"),
     Symbol = require("./js/Enums.js").Symbol,
     TruthTree = require("./js/TruthTree.js");
 
-// TODO (IMPORTANT) : Need to write a markdown file for the github page.
-
-
 // sets some margins for the tree setup to consider. Not too sure we need this.
 var treeSetup = {
       top : 20,
