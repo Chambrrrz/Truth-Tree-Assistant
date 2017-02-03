@@ -1,77 +1,64 @@
-var Parser = require("./js/Parser.js"),
-    Write = require("./js/PrettyPrinter.js"),
-    NodeType = require("./js/Enums.js").NodeType,
-    Symbol = require("./js/Enums.js").Symbol,
+var //Parser = require("./js/Parser.js"),
+    //Write = require("./js/PrettyPrinter.js"),
+    Operation = require("./js/Enums.js").Operation,
+    TruthTreeController = require("./js/TreeController.js"),
     TruthTree = require("./js/TruthTree.js");
 
-// sets some margins for the tree setup to consider. Not too sure we need this.
-var treeSetup = {
-      top : 20,
-      left : 200,
-      right: 0,
-      bottom: 0
-};
+
+
+var controller = new TruthTreeController();
+
+
 
 // the truth tree we are going to setup.
-var tree = null;
-
 function handleTruthTreeCreation() {
 
-    if (tree) throw "We have already started a truth tree."
-    
-    var rootNode = { 
+    // sets some margins for the tree setup to consider. Not too sure we need this.
+    var treeSetup = {
+        top : 20,
+        left : 200,
+        right: 0,
+        bottom: 0
+    },
+        
+        rootNode = { 
 
-      props : $(".propList").text().split(",")
+        props : $(".propList").text().split(",")
+    };
 
+    controller.newTree(treeSetup, rootNode);
+
+}
+
+
+
+
+function handleRuleApplication(clickedControl) {
+
+    var jqueryControl = $(clickedControl);
+    var isNot = jqueryControl.hasClass("not"),
+        operation = null;
+
+
+    if (jqueryControl.hasClass("or")) {
+        operation = Operation.OR
+    } else if (jqueryControl.hasClass("and")) {
+        operation = Operation.AND;
+    } else if (jqueryControl.hasClass("imp")) {
+        operation = Operation.IMP;
+    } else if (jqueryControl.hasClass("biimp")) {
+        operation = Operation.BIIMP;
+    } else if (jqueryControl.hasClass("negation")) {
+        operation = Operation.NOT;
+    } else if (jqueryControl.hasClass("close")) {
+        operation = Operation.CLOSE;
+    } else {
+        throw "Unable to determine type of requested operation";
     }
 
-    tree = new TruthTree(treeSetup, rootNode);
-
-}
-
-function handleRuleApplication(currentTarget) {
-
-      var control = $(currentTarget).closest("li"),
-      rule = generateRule(control);
-
-      tree.applyRule(rule);
-}
-
-
-
-function generateRule(clickedControl) {
-
-    var newRule = {ruleType : "", not: false }
-
-    if (clickedControl.hasClass("or")) {
-        newRule.ruleType = "OR";
-    } else if (clickedControl.hasClass("notAnd")) {
-        newRule.ruleType = "AND"
-        newRule.not = true;
-    } else if (clickedControl.hasClass("imp")) {
-        newRule.ruleType = "IMP";
-    } else if (clickedControl.hasClass("biimp")) {
-        newRule.ruleType = "BIIMP";
-    } else if (clickedControl.hasClass("notBiimp")) {
-        newRule.ruleType = "BIIMP";
-        newRule.not = true;
-    } else if (clickedControl.hasClass("doubleNegation")) {
-        newRule.ruleType = "NOT"
-        newRule.not = true;
-    } else if (clickedControl.hasClass("and")) {
-        newRule.RuleType = "AND";
-    } else if (clickedControl.hasClass("notImp")) {
-        newRule.RuleType = "IMP"
-        newRule.not = true;
-    } else if (clickedControl.hasClass("notOr")) {
-        newRule.ruleType = "OR"
-        newRule.not = true;
-    } else{
-        throw "Unfamilliar rule type."
-    } 
-
-    return newRule;
+    controller.apply(operation, isNot);
 } 
+
 
 
 //TODO : LET US CLOSE BRANCHES!! 
