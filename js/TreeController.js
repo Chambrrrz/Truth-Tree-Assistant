@@ -15,6 +15,11 @@ function TreeController(log) {
 TreeController.prototype.constructor = TreeController;
 
 
+TreeController.prototype.hasTree = function(){
+	return this.truthTree !== null;
+}
+
+
 /*
  * Generates a new TruthTree from the provided display options and tree data.
  */
@@ -86,7 +91,14 @@ TreeController.prototype.apply = function(operation, isNot) {
 	 * 	anonymous function 'this' is pointing to the windows object, and not the object which owns the function.
 	 */
 
-	this.truthTree.getLeaves().forEach(n => op(isNot, n, ast, this.truthTree));
+	this.truthTree.getLeaves().forEach(n => {
+		if (!n.closed){
+			op(isNot, n, ast, this.truthTree);
+		} else {
+			if (operation === Operation.CLOSE)
+				op(isNot, n, ast, this.truthTree);	
+		}
+	});
 	this.truthTree._update();
 }
 

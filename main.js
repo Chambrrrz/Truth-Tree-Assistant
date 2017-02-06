@@ -1,6 +1,4 @@
-var //Parser = require("./js/Parser.js"),
-    //Write = require("./js/PrettyPrinter.js"),
-    Operation = require("./js/Enums.js").Operation,
+var Operation = require("./js/Enums.js").Operation,
     TruthTreeController = require("./js/TreeController.js"),
     TruthTree = require("./js/TruthTree.js");
 
@@ -23,12 +21,16 @@ function log(text){
     $("#log > p").text(text);
 }
 
-var controller = new TruthTreeController();
+var controller = new TruthTreeController(log);
 
 
 // the truth tree we are going to setup.
 function handleTruthTreeCreation() {
 
+    // TODO: generate a new tree in the same svg element.
+    if (controller.hasTree()){
+        throw "tree already started." 
+    }
     // sets some margins for the tree setup to consider. Not too sure we need this.
     var treeSetup = {
         top : 20,

@@ -303,11 +303,17 @@ var TruthTree = require("./TruthTree.js"),
 /*
  *  Constructor for a TreeController.
  */
-function TreeController() {
+function TreeController(log) {
 
-	this.truthTree = null
+	this.log = log;
+	this.truthTree = null;
 }
 TreeController.prototype.constructor = TreeController;
+
+
+TreeController.prototype.hasTree = function(){
+	return this.truthTree !== null;
+}
 
 
 /*
@@ -330,42 +336,48 @@ TreeController.prototype.apply = function(operation, isNot) {
 		leave = this.truthTree.getLeaves(),
 		op = null;
 
+	// if the operation doesn't match the node type, inform the user they are applying an incorrect operation.
+	if (operation !== Operation.CLOSE && operation !== ast.nodeType) {
 
-	switch (operation){
-		case Operation.ATOM:
-			op = this._atomOp;
-			break;
+		this.log("Incorrect (non-)branching rule.");
+	} else {
 
-		case Operation.IMP:
-			op = this._implicationOP;
-			break;
+		switch (operation){
+			case Operation.ATOM:
+				op = this._atomOp;
+				break;
 
-		case Operation.BIIMP:
-			op = this._biImplicationOP;
-			break;
+			case Operation.IMP:
+				op = this._implicationOP;
+				break;
 
-		case Operation.AND:
-			op = this._andOP;
-			break;
+			case Operation.BIIMP:
+				op = this._biImplicationOP;
+				break;
 
-		case Operation.XOR:
-			op = this._xOrOP;
-			break;
+			case Operation.AND:
+				op = this._andOP;
+				break;
 
-		case Operation.NOT:
-			op = this._notOP;
-			break;
+			case Operation.XOR:
+				op = this._xOrOP;
+				break;
 
-		case Operation.OR:
-			op = this._orOP;
-			break;
+			case Operation.NOT:
+				op = this._notOP;
+				break;
 
-		case Operation.CLOSE:
-			op = this._closeBranchOP;
-			break;
+			case Operation.OR:
+				op = this._orOP;
+				break;
 
-		default:
-			throw "Unrecognized operation.";
+			case Operation.CLOSE:
+				op = this._closeBranchOP;
+				break;
+
+			default:
+				throw "Unrecognized operation.";
+		}
 	}
 
 	/*  NOTE: 	
@@ -375,7 +387,14 @@ TreeController.prototype.apply = function(operation, isNot) {
 	 * 	anonymous function 'this' is pointing to the windows object, and not the object which owns the function.
 	 */
 
-	this.truthTree.getLeaves().forEach(n => op(isNot, n, ast, this.truthTree));
+	this.truthTree.getLeaves().forEach(n => {
+		if (!n.closed){
+			op(isNot, n, ast, this.truthTree);
+		} else {
+			if (operation === Operation.CLOSE)
+				op(isNot, n, ast, this.truthTree);	
+		}
+	});
 	this.truthTree._update();
 }
 
@@ -613,212 +632,6 @@ TruthTree.prototype.getLeaves = function() {
 
 
 /*
- *  Apples the provided branching rule to the tree.
- */
- /*
-TruthTree.prototype.applyRule = function(rule) {
-  
-  var apply = (doRule) => {
-          
-          //TODO: Don't think we need to parse selectedText as much as we are.
-          var leaves = this.getLeaves(),
-              ast = Parse(this.selectedText);
-
-          leaves.filter(n => !n.closed || rule.ruleType === "CLOSE")
-                .forEach(n => doRule(n, ast));
-        }
-  
-
-      // nothing happens when you hit an atom.
-  var ATOM = (n, ast) => {},
-      
-      // p -> q  ==> (~p, q)      |     ~(p -> q) ==>  p, ~q
-      IMP = (n, ast) => {
-
-            var p = Write(ast.children[0]),
-                q = Write(ast.children[1]);
-            
-            if (rule.not) {
-              //write p, q as a new node.
-              this.addChild({
-                 props : [ p, Symbol.NOT + q ] 
-               }, n);
-              
-            } else {
-              // write p
-              this.addChild({
-                props : [Symbol.NOT + p]
-              }, n);
-
-              // write q
-              this.addChild({ 
-                props : [q]
-              }, n);  
-            }
-      },
-      
-      // p <-> q ==> ([p,q],[~p, ~q])    |  ~(p <-> q) ==> ([p, ~q], [~p, q])
-      BIIMP = (n, ast) => {
-
-              var p = Write(ast.children[0]),
-                  q = Write(ast.children[1]);
-
-              if (rule.not) {
-
-                this.addChild({
-                  props : [ p, Symbol.NOT + q]
-                }, n);
-
-                this.addChild({
-                  props : [ Symbol.NOT + p, q ]
-                }, n)
-
-              } else {
-
-                this.addChild({
-                  props : [p, q]
-                }, n);
-
-                this.addChild({
-                  props : [Symbol.NOT + p, Symbol.NOT + q]
-                }, n);
-              }
-      },
-
-      // p & q ==> p, q   |   ~(p & q) ==> (~p, ~q)
-      AND = (n, ast) => {
-
-            var p = Write(ast.children[0]),
-                q = Write(ast.children[1]);
-
-            if (rule.not) {
-
-                this.addChild({
-                  props : [Symbol.NOT + p]
-                }, n);
-
-                this.addChild({
-                  props : [Symbol.NOT + q]
-                }, n);
-
-            } else {
-
-              this.addChild({
-                props : [p, q]
-              }, n);
-
-            }
-      },
-
-      // ~BIIMP
-      XOR = (n, ast) => { 
-
-            not = true;
-            BIIMP(n, ast);
-      },
-
-      // if we hit this, we have a double negation.
-      // ~~p ==> p
-      NOT = (n, ast) => {
-
-            var p = Write(ast.children[0]);
-
-            this.addChild({
-              props : [ p ]
-            }, n);
-      },
-
-      // p v q ==> (p,q)  |  ~(p v q) ==> ~p, ~q  
-      OR = (n, ast) => {
-
-            var p = Write(ast.children[0]),
-                q = Write(ast.children[1]);
-
-            if (rule.not) {
-
-              this.addChild({
-                props : [Symbol.NOT + p, Symbol.NOT + q]
-              }, n);
-
-
-            } else {
-
-              this.addChild({
-                props : [p]
-              }, n);
-
-              this.addChild({
-                props : [q]
-              }, n);
-            }
-      },
-      
-      // Closes a branch of the tree.
-      CLOSE = (n, ast) => {
-
-        if (n.clicked) {
-          if (n.closed) {
-            n.closed = false;
-          } else {
-            n.closed = true;
-          }
-        }
-      }
-  
-
-   
-    switch(rule.ruleType) {
-      case NodeType.ATOM : 
-        apply(ATOM);
-        break;
-
-      case NodeType.IMP : 
-        apply(IMP);
-        break;
-
-      case NodeType.ATOM : 
-        apply(ATOM);
-        break;
-
-      case NodeType.IMP : 
-        apply(IMP);
-        break;
-
-      case NodeType.BII : 
-        apply(BII);
-        break;
-
-      case NodeType.AND : 
-        apply(AND);
-        break;
-
-      case NodeType.XOR : 
-        apply(XOR);
-        break;
-
-      case NodeType.NOT : 
-        apply(NOT);
-        break;
-
-      case NodeType.OR : 
-        apply(OR);
-         break;
-                      // Make a new Enum ? RULETYPE
-      case "CLOSE" :
-        apply(CLOSE);
-        break;
-
-      default :
-          break;
-
-    }
-
-    //update the view.
-    this._update(this.root);
-}
-*/
-
-/*
  *  Returns an object containing the nodes and links for the tree.
  */
 TruthTree.prototype.getLayout = function() {
@@ -828,6 +641,14 @@ TruthTree.prototype.getLayout = function() {
     nodes : nodes,
     links : this.tree.links(nodes)
   }
+}
+
+
+
+TruthTree.prototype.updatedSelectedtext = function(text) {
+    this.selectedText = text;
+    console.log(this.selectedText);
+
 }
 
 
@@ -885,6 +706,7 @@ TruthTree.prototype._update = function(source) {
 
         if (d.clicked) {
           d.clicked = false;
+          this.updatedSelectedtext("");
         } else {
           d.clicked = true;
           
@@ -916,7 +738,7 @@ TruthTree.prototype._update = function(source) {
       .attr("dy", function(d, i) { return (2 * i) + "em"})
       .style("fill-opacity", 0)
       .on("click", (d) =>{
-        this.selectedText = d;
+        this.updatedSelectedtext(d);
       });
 
   // Transitions nodes to their new position.
@@ -946,7 +768,10 @@ TruthTree.prototype._update = function(source) {
     });
 
   nodeUpdate.selectAll('text')
-    .style('fill-opacity', 1);
+    .style('fill-opacity', 1)
+    .style('text-decoration', function(d) {
+      var x = 2;
+    })
 
   var nodeExit = node.exit().transition()
     .duration(1000)
@@ -1035,21 +860,39 @@ TruthTree.prototype._getRectWidth = function(textArray) {
 
 module.exports = TruthTree
 },{"./Enums.js":1,"./Parser.js":2,"./PrettyPrinter.js":3}],6:[function(require,module,exports){
-var //Parser = require("./js/Parser.js"),
-    //Write = require("./js/PrettyPrinter.js"),
-    Operation = require("./js/Enums.js").Operation,
+var Operation = require("./js/Enums.js").Operation,
     TruthTreeController = require("./js/TreeController.js"),
     TruthTree = require("./js/TruthTree.js");
 
+var originalLog = window.console.log;
+var debug = true;
 
+window.console = {
+    log : function (text){
+        
+        // we are setting a debug flag. So when we are in debug mode, we duplicate the console.log output in the #log div. When debug is false, console.log behaves as normal.
+        // this is mainly so we can debug everything without having another global log.
+        if (debug)
+            log(text);
+        
+        originalLog(text);
+    }
+}
 
-var controller = new TruthTreeController();
+function log(text){
+    $("#log > p").text(text);
+}
 
+var controller = new TruthTreeController(log);
 
 
 // the truth tree we are going to setup.
 function handleTruthTreeCreation() {
 
+    // TODO: generate a new tree in the same svg element.
+    if (controller.hasTree()){
+        throw "tree already started." 
+    }
     // sets some margins for the tree setup to consider. Not too sure we need this.
     var treeSetup = {
         top : 20,

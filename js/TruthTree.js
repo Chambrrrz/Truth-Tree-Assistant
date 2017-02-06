@@ -80,6 +80,14 @@ TruthTree.prototype.getLayout = function() {
 }
 
 
+
+TruthTree.prototype.updatedSelectedtext = function(text) {
+    this.selectedText = text;
+    console.log(this.selectedText);
+
+}
+
+
 /*
  *  Updates the subtree 'source' node. If 'source' is empty, updates 'root'.
  */
@@ -134,6 +142,7 @@ TruthTree.prototype._update = function(source) {
 
         if (d.clicked) {
           d.clicked = false;
+          this.updatedSelectedtext("");
         } else {
           d.clicked = true;
           
@@ -165,7 +174,7 @@ TruthTree.prototype._update = function(source) {
       .attr("dy", function(d, i) { return (2 * i) + "em"})
       .style("fill-opacity", 0)
       .on("click", (d) =>{
-        this.selectedText = d;
+        this.updatedSelectedtext(d);
       });
 
   // Transitions nodes to their new position.
@@ -195,7 +204,10 @@ TruthTree.prototype._update = function(source) {
     });
 
   nodeUpdate.selectAll('text')
-    .style('fill-opacity', 1);
+    .style('fill-opacity', 1)
+    .style('text-decoration', function(d) {
+      var x = 2;
+    })
 
   var nodeExit = node.exit().transition()
     .duration(1000)
