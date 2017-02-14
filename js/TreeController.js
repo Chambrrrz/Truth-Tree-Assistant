@@ -1,7 +1,8 @@
 var TruthTree = require("./TruthTree.js"),
 	Operation = require("./Enums.js").Operation,
 	Parse = require("./Parser.js"),
-	Write = require("./PrettyPrinter.js");
+	Write = require("./PrettyPrinter.js"),
+	Symbol = require("./Enums.js").Symbol;
 
 
 /*
@@ -15,13 +16,16 @@ function TreeController(log) {
 TreeController.prototype.constructor = TreeController;
 
 
-TreeController.prototype.hasTree = function(){
+/*
+ *  Checks if the controller has created a tree yet.
+ */
+TreeController.prototype.hasTree = function() {
 	return this.truthTree !== null;
 }
 
 
 /*
- * Generates a new TruthTree from the provided display options and tree data.
+ *  Generates a new TruthTree from the provided display options and tree data.
  */
 TreeController.prototype.newTree = function(options, treeData) {
 	
@@ -33,19 +37,22 @@ TreeController.prototype.newTree = function(options, treeData) {
  *  Applies the operation to the current TruthTree.
  */
 TreeController.prototype.apply = function(operation, isNot) {
+
+	var selectedProp = this.truthTree.selectedProp;
 	
 	if (!this.truthTree) throw "No tree created.";
+    if (selectedProp.prop === "") throw "no proposition selected.";
+    if (selectedProp.used) throw "Proposition is already used."
 
-	var ast = Parse(this.truthTree.selectedText),
+	var ast = Parse(selectedProp.prop),
 		leave = this.truthTree.getLeaves(),
 		op = null;
 
 	// if the operation doesn't match the node type, inform the user they are applying an incorrect operation.
 	if (operation !== Operation.CLOSE && operation !== ast.nodeType) {
-
 		this.log("Incorrect (non-)branching rule.");
 	} else {
-
+		selectedProp.used = true;
 		switch (operation){
 			case Operation.ATOM:
 				op = this._atomOp;
@@ -93,13 +100,25 @@ TreeController.prototype.apply = function(operation, isNot) {
 
 	this.truthTree.getLeaves().forEach(n => {
 		if (!n.closed){
-			op(isNot, n, ast, this.truthTree);
+			op(isNot, n, ast, this);
 		} else {
 			if (operation === Operation.CLOSE)
-				op(isNot, n, ast, this.truthTree);	
+				op(isNot, n, ast, this);	
 		}
 	});
+
 	this.truthTree._update();
+}
+
+/*
+ *  Creates a new proposition object with the provided text.
+ */
+TreeController.prototype.newProp = function(text){
+	return {
+		prop : text,
+		clicked : false,
+		used : false
+	};
 }
 
 
@@ -107,35 +126,39 @@ TreeController.prototype.apply = function(operation, isNot) {
 /*
  *  Atom operation.
  */
-TreeController.prototype._atomOP = function(isNot, node, ast, truthTree) {
+TreeController.prototype._atomOP = function(isNot, node, ast, cont) {
 	
 	// Do nothing when we hit an atom node.
 }
 
 
 /*
- * Implication Operation.
+ *  Implication Operation.
  */
-TreeController.prototype._implicationOP = function(isNot, node, ast, truthTree) {
+TreeController.prototype._implicationOP = function(isNot, node, ast, cont) {
 	
-    var p = Write(ast.children[0]),
-        q = Write(ast.children[1]);
+	var truthTree = cont.truthTree;
+
+	var p = Write(ast.children[0]),
+		q = Write(ast.children[1]);
+
     
     if (isNot) {
       	//write p, q as a new node.
       	truthTree.addChild({
-        	props : [ p, Symbol.NOT + q ] 
+        	props : [ cont.newProp(p), cont.newProp(Symbol.NOT + q) ] 
 		}, node);
       
     } else {
+
       	// write p
     	truthTree.addChild({
-			props : [Symbol.NOT + p]
+			props : [cont.newProp(Symbol.NOT + p)]
 		}, node);
 
       	// write q
     	truthTree.addChild({ 
-			props : [q]
+			props : [cont.newProp(q)]
       	}, node);  
     }
       
@@ -143,58 +166,58 @@ TreeController.prototype._implicationOP = function(isNot, node, ast, truthTree) 
 
 
 /*
- * BiImplication Operation.
+ *  BiImplication Operation.
  */
-TreeController.prototype._biImplicationOP = function(isNot, node, ast, truthTree) {
-	
+TreeController.prototype._biImplicationOP = function(isNot, node, ast, cont) {
+
 	var p = Write(ast.children[0]),
 	    q = Write(ast.children[1]);
 
 	if (isNot) {
 
 	    truthTree.addChild({
-			props : [ p, Symbol.NOT + q]
+			props : [ cont.newProp(p), cont.newProp(Symbol.NOT + q)]
 	    }, node);
 
 	    truthTree.addChild({
-			props : [ Symbol.NOT + p, q ]
+			props : [ cont.newProp(Symbol.NOT + p), cont.newProp(q) ]
 	    }, node)
 
 	} else {
 
 		truthTree.addChild({
-	    	props : [p, q]
+	    	props : [cont.newProp(p), cont.newProp(q)]
 	    }, node);
 
 	    truthTree.addChild({
-	    	props : [Symbol.NOT + p, Symbol.NOT + q]
+	    	props : [cont.newProp(Symbol.NOT + p), cont.newProp(Symbol.NOT + q)]
 	    }, node);
 	  }
 }
 
 
 /*
- * And Operation.
+ *  And Operation.
  */
-TreeController.prototype._andOP = function(isNot, node, ast, truthTree) {
+TreeController.prototype._andOP = function(isNot, node, ast, cont) {
 
-	var p = Write(ast.children[0]),
-        q = Write(ast.children[1]);
+	var p = controller.newProp(Write(ast.children[0])),
+        q = controller.newProp(Write(ast.children[1]));
 
     if (isNot) {
 
         truthTree.addChild({
-         	props : [Symbol.NOT + p]
+         	props : [cont.newProp(Symbol.NOT + p)]
         }, node);
 
         truthTree.addChild({
-          	props : [Symbol.NOT + q]
+          	props : [cont.newProp(Symbol.NOT + q)]
         }, node);
 
     } else {
 
     	truthTree.addChild({
-        	props : [p, q]
+        	props : [cont.newProp(p), cont.newProp(q)]
       	}, node);
 
     }	
@@ -202,58 +225,58 @@ TreeController.prototype._andOP = function(isNot, node, ast, truthTree) {
 
 
 /*
- * XOR Operation.
+ *  XOR Operation.
  */
-TreeController.prototype._xOrOP = function(isNot, node, ast, truthTree) {
+TreeController.prototype._xOrOP = function(isNot, node, ast, cont) {
 	// We don't really need this rule.
 	BIIMP(!isNot, node, ast, truthTree);
 }
 
 
 /*
- * Double Negation Operation.
+ *  Double Negation Operation.
  */
-TreeController.prototype._notOP = function(isNot, node, ast, truthTree) {
+TreeController.prototype._notOP = function(isNot, node, ast, cont) {
 	
-	 var p = Write(ast.children[0]);
+	 var p = controller.newProp(Write(ast.children[0]));
 
     truthTree.addChild({
-    	props : [ p ]
+    	props : [ cont.newProp(p) ]
     }, node);
 }
 
 
 /*
- * Or Operation.
+ *  Or Operation.
  */
-TreeController.prototype._orOP = function(isNot, node, ast, truthTree) {
+TreeController.prototype._orOP = function(isNot, node, ast, cont) {
 	
-	var p = Write(ast.children[0]),
-    	q = Write(ast.children[1]);
+	var p = controller.newProp(Write(ast.children[0])),
+    	q = controller.newProp(Write(ast.children[1]));
 
     if (isNot) {
 
      	truthTree.addChild({
-        	props : [Symbol.NOT + p, Symbol.NOT + q]
+        	props : [cont.newProp(Symbol.NOT + p), cont.newProp(Symbol.NOT + q)]
       	}, node);
 
     } else {
 
 		truthTree.addChild({
-	    	props : [p]
+	    	props : [cont.newProp(p)]
 	   	}, node);
 
 	    truthTree.addChild({
-			props : [q]
+			props : [cont.newProp(q)]
 	    }, node);
 	}
 }
 
 
 /*
- * Branch Closing / Opening operation.
+ *  Branch Closing / Opening operation.
  */
-TreeController.prototype._closeBranchOP = function(isNot, node, ast, truthTree) {
+TreeController.prototype._closeBranchOP = function(isNot, node, ast, cont) {
 	if (node.clicked) {
 		if (node.closed) {
 			node.closed = false;

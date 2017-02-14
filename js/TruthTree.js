@@ -18,7 +18,7 @@
 
     this.nodeCount = 0;
     this.clickedNode = null;
-    this.selectedtext = "";
+    this.selectedProp = { prop : "" };
 
     this.tree = d3.layout.tree().size([height, width]);
 
@@ -81,10 +81,15 @@ TruthTree.prototype.getLayout = function() {
 
 
 
-TruthTree.prototype.updatedSelectedtext = function(text) {
-    this.selectedText = text;
-    console.log(this.selectedText);
+TruthTree.prototype.updatedSelectedProp = function(prop) {
+    this.selectedProp = prop
+    console.log(this.selectedProp.prop);
 
+}
+
+TruthTree.prototype.setEmptyPropSelected = function(){
+  this.selectedProp = {prop : "" }
+  console.log("");
 }
 
 
@@ -137,23 +142,8 @@ TruthTree.prototype._update = function(source) {
   var nodeEnter = node.enter().append("g")
   .attr("class", "node")
   .attr("transform", function(d) { 
-    return "translate(" + source.x0 + "," + (source.y0 + 20) + ")"; })
-  .on("click", (d) => {
-
-        if (d.clicked) {
-          d.clicked = false;
-          this.updatedSelectedtext("");
-        } else {
-          d.clicked = true;
-          
-          if(this.clickedNode)
-            this.clickedNode.clicked = false;
-        }
-
-        this.clickedNode = this.clickedNode === d ? null : d;
-
-        this._update(d);
-    })
+    return "translate(" + source.x0 + "," + (source.y0 + 20) + ")";
+  });
 
   // padding for text inside a rect.
   var padding = 20;
@@ -170,16 +160,24 @@ TruthTree.prototype._update = function(source) {
       .enter()
       .append("text")
       .attr("text-anchor", "middle")
-      .text(function(d) { return d})
+      .text(function(d) { return d.prop })
       .attr("dy", function(d, i) { return (2 * i) + "em"})
       .style("fill-opacity", 0)
-      .on("click", (d) =>{
-        this.updatedSelectedtext(d);
+      .on("click", (d) => {
+
+        if (d.clicked) {
+          d.clicked = false;
+          this.setEmptyPropSelected();
+        } else {
+          d.clicked = true;
+          this.updatedSelectedProp(d);
+        }
+        this._update(d);
       });
 
   // Transitions nodes to their new position.
   var nodeUpdate = node.transition()
-      .duration(1000)
+      .duration(500)
       .attr("transform", function(d) { 
         return "translate(" + d.x + "," + d.y + ")";
       });
@@ -192,25 +190,35 @@ TruthTree.prototype._update = function(source) {
     .style("fill-opacity", 1)
     .style("stroke-opacity", 1)
     .style("stroke", (t) => {
-        var color;
 
-        if(!t.closed) {
-          color = t.clicked ? "green" : "steelblue";
-        } else {
-          color  = "red";
-        }
+      var color;
 
-        return color;
+      if (t.closed){
+        color = "red";
+      } else if (t.props.filter(p => p.clicked).length !== 0) {
+        color = "green";
+      }
+      else {
+        color = "steelblue";
+      }
+
+      return color;
     });
 
   nodeUpdate.selectAll('text')
-    .style('fill-opacity', 1)
-    .style('text-decoration', function(d) {
-      var x = 2;
+    .style("color", (d) => {
+      return d.clicked ? "blue" : "black";
     })
+    .style('fill-opacity', 1)
+    .style('text-decoration', (d) => {
+      return d.used ? "line-through" : "none";
+    })
+    .style('text-decoration-color', (d) => {
+      return d.used ? "red" : "black";       
+    });
 
   var nodeExit = node.exit().transition()
-    .duration(1000)
+    .duration(500)
     .attr("transform", function(d) { 
         return "translate(" + source.x + "," + (source.y + 20) + ")";
     })
@@ -250,12 +258,12 @@ TruthTree.prototype._update = function(source) {
 
    //Transition links
    link.transition()
-      .duration(1000)
+      .duration(500)
       .attr("d", straightLines)
       .style("stroke-opacity", 1)
 
    link.exit().transition()
-      .duration(1000)
+      .duration(500)
       .style("stroke-opacity", 0)
       .attr("d", function(d) {
         var o = { x : source.x, y : source.y + 20 };

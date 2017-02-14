@@ -17,7 +17,8 @@ window.console = {
     }
 }
 
-function log(text){
+function log(text) {
+
     $("#log > p").text(text);
 }
 
@@ -33,15 +34,14 @@ function handleTruthTreeCreation() {
     }
     // sets some margins for the tree setup to consider. Not too sure we need this.
     var treeSetup = {
-        top : 20,
-        left : 200,
-        right: 0,
-        bottom: 0
+            top : 20,
+            left : 200,
+            right: 0,
+            bottom: 0
     },
         
         rootNode = { 
-
-        props : $(".propList").text().split(",")
+            props : $(".propList").text().split(",").map(p => { return { prop: p, clicked : false, used : false }})
     };
 
     controller.newTree(treeSetup, rootNode);
@@ -78,8 +78,6 @@ function handleRuleApplication(clickedControl) {
 } 
 
 
-
-//TODO : LET US CLOSE BRANCHES!! 
 
 $(".control").on("click",function(e) {
 
