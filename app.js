@@ -433,9 +433,8 @@ TreeController.prototype._atomOP = function(isNot, node, ast, cont) {
  */
 TreeController.prototype._implicationOP = function(isNot, node, ast, cont) {
 	
-	var truthTree = cont.truthTree;
-
-	var p = Write(ast.children[0]),
+	var truthTree = cont.truthTree,
+		p = Write(ast.children[0]),
 		q = Write(ast.children[1]);
 
     
@@ -466,7 +465,8 @@ TreeController.prototype._implicationOP = function(isNot, node, ast, cont) {
  */
 TreeController.prototype._biImplicationOP = function(isNot, node, ast, cont) {
 
-	var p = Write(ast.children[0]),
+	var truthTree = cont.truthTree,
+		p = Write(ast.children[0]),
 	    q = Write(ast.children[1]);
 
 	if (isNot) {
@@ -497,8 +497,9 @@ TreeController.prototype._biImplicationOP = function(isNot, node, ast, cont) {
  */
 TreeController.prototype._andOP = function(isNot, node, ast, cont) {
 
-	var p = controller.newProp(Write(ast.children[0])),
-        q = controller.newProp(Write(ast.children[1]));
+	var truthTree = cont.truthTree,
+		p = Write(ast.children[0]),
+        q = Write(ast.children[1]);
 
     if (isNot) {
 
@@ -533,8 +534,9 @@ TreeController.prototype._xOrOP = function(isNot, node, ast, cont) {
  *  Double Negation Operation.
  */
 TreeController.prototype._notOP = function(isNot, node, ast, cont) {
-	
-	 var p = controller.newProp(Write(ast.children[0]));
+
+	var truthTree = cont.truthTree,
+		p = Write(ast.children[0]);
 
     truthTree.addChild({
     	props : [ cont.newProp(p) ]
@@ -547,8 +549,9 @@ TreeController.prototype._notOP = function(isNot, node, ast, cont) {
  */
 TreeController.prototype._orOP = function(isNot, node, ast, cont) {
 	
-	var p = controller.newProp(Write(ast.children[0])),
-    	q = controller.newProp(Write(ast.children[1]));
+	var truthTree = cont.truthTree,
+		p = Write(ast.children[0]),
+    	q = Write(ast.children[1]);
 
     if (isNot) {
 
